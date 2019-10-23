@@ -1,4 +1,4 @@
-from pype2.fargs import embedded_pype,concat,l,append,dissoc,d,merge,_
+from pype2.fargs import embedded_pype,assoc,concat,l,append,dissoc,build_dict,merge,_
 
 ##########
 # MACROS #
@@ -35,7 +35,7 @@ def iffp(*fArgs):
 
 def db(*fArgs):
 
-    return [d,*fArgs]
+    return [build_dict,*fArgs]
 
 
 def dbp(*fArgs):
