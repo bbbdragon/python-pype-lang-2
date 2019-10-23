@@ -1,4 +1,4 @@
-name='pype'
+name='pype2'
 __version__='1.2.0'
 py_slice=slice
 from pype2.build_helpers import *
@@ -136,11 +136,11 @@ import builtins
 #import astpretty
 #import pprint as pp
 
-def pype(verbose=False,
-         timed=False,
-         printAccums=False,
-         keyStep=False,
-         buildKeyStep=False):
+def pypeify(verbose=False,
+            timed=False,
+            printAccums=False,
+            keyStep=False,
+            buildKeyStep=False):
     '''
     TODO: Recursive Functions can't be compiled with explicit build.
     '''
@@ -336,11 +336,14 @@ def pype(verbose=False,
     return build_decorator
 
 
+pype_builder=pypeify
+
+
 #####################################
 # COMPILATION OF ALL PYPE FUNCTIONS #
 #####################################
 
-def pypeify(namespace=None):
+def pypeify_all(namespace=None):
     '''
     This function searches a namespace for any pype functions which do not have the
     'pype' decorator.  If the function does not have the 'pype' decorator, then the 
@@ -405,7 +408,7 @@ def pypeify(namespace=None):
         
         if not is_pype_decorated_function(v):
 
-            f=pype()(v)
+            f=pype_builder()(v)
             
             namespace[k]=f
 
