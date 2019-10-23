@@ -1,5 +1,5 @@
 from collections import defaultdict
-
+import numpy as np
 '''
 These are just functions to check types of objects.
 '''
