@@ -1,5 +1,5 @@
 import numpy as np
-from pype2 import pype,p,_
+from pype2 import pypeify,p,_
 from pype2.helpers import zip_dct,dct_keys,dct_values
 from pype2 import ep
 
@@ -303,7 +303,7 @@ def from_mat(mat,i,j):
     return mat[i,j]
 
 
-@pype
+@pypeify()
 def prob_vec(a):
     
     return p( a,
@@ -311,7 +311,7 @@ def prob_vec(a):
               _/np.sum)
 
 
-@pype
+@pypeify()
 def count_prob_array(ls,discount=0):
 
     return p( ls,
@@ -351,7 +351,7 @@ def softplus(x):
 
 
 
-@pype
+@pypeify()
 def prob_dct(valDct):
 
     return p( valDct,
@@ -371,3 +371,20 @@ def median_std(a):
     return np.median(a)
     
     
+def np_max(a):
+
+    return np.nan_to_num(np.max(a))
+
+
+def np_median(a):
+
+    return np.nan_to_num(np.median(a))
+
+
+def np_std(a):
+
+    return np.nan_to_num(np.std(a))
+
+
+L=1e-100
+
