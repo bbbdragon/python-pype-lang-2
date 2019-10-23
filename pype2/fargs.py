@@ -41,7 +41,7 @@ embedded_pype='embedded_pype'
 
 # IN CASE YOU THINK THE ABOVE IS MESSY
 
-d='BUILD_DICT'
+build_dict='BUILD_DICT'
 assoc='DICT_ASSOC'
 merge='DICT_MERGE'
 dissoc='DICT_DISSOC'
@@ -51,7 +51,7 @@ concat='LIST_CONCAT'
 while_loop='WHILE_LOOP'
 do='FARG_DO'
 LIST_ARGS=set([embedded_pype,
-               d,
+               build_dict,
                assoc,
                merge,
                dissoc,
@@ -193,7 +193,7 @@ def is_filter(fArg):
 # DICT BUILD #
 ##############
 
-DICT_BUILD_ARGS=set([d])
+DICT_BUILD_ARGS=set([build_dict])
 
 def is_explicit_dict_build(fArg):
 
