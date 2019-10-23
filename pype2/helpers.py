@@ -140,6 +140,18 @@ def short_print(v):
     print(short_string(v))
 
 
+def short_pp_string(v,ln=2000):
+
+    s=pp.pformat(v)
+
+    return s[:ln]
+
+
+def short_pp(v,ln=2000):
+
+    print(short_pp_string(v,ln=2000))
+
+
 ########################
 # OTHER RANDOM HELPERS #
 ########################
@@ -844,3 +856,4 @@ def unique_dcts(dctLS):
     d={dct_hash(dct):dct for dct in dctLS}
 
     return list(d.values())
+
