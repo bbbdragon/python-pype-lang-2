@@ -1,4 +1,5 @@
 from pype2.fargs import embedded_pype,assoc,concat,l,append,dissoc,build_dict,merge,_
+from pype2.helpers import dct_dissoc,dct_assoc,dct_merge
 
 ##########
 # MACROS #
@@ -27,9 +28,15 @@ def ifp(*fArgs):
             'else':_}
 
 
-def iffp(*fArgs):
+def iftp(*fArgs):
     
     return {_:ep(*fArgs),
+            'else':False}
+
+
+def is_true(condition):
+
+    return {condition:True,
             'else':False}
 
 
@@ -46,6 +53,7 @@ def dbp(*fArgs):
 def select(*fArgs):
 
     return {fArg:_[fArg] for fArg in fArgs}
+
 
 
 def a(*fArgs):
@@ -67,6 +75,11 @@ def d(*fArgs):
     return [dissoc,*fArgs]
 
 
+def squash(fArg):
+
+    return (dct_dissoc,(dct_merge,_,_[fArg]),fArg)
+
+
 def tup(*fArgs):
 
     return [l,*fArgs]
@@ -81,3 +94,7 @@ def c(*fArgs):
 
     return [concat,*fArgs]
 
+
+def change(fromKeyFArg,toKeyFArg):
+
+    return (dct_dissoc,(dct_assoc,_,toKeyFArg,_[fromKeyFArg]),fromKeyFArg)

@@ -139,7 +139,7 @@ class NoAccumReplacer(NodeVisitor):
 
         # First, there can only be one args to the function.  Took out the lenght
         # constraint because docstrings lengthen the function.  
-        if len(args) == 1: #and len(body) == 1:
+        if True:#len(args) == 1: #and len(body) == 1:
 
             # print('args and body length 1')
 
@@ -300,11 +300,16 @@ class PypeValReplacer(NodeVisitor):
     '''
     def visit_BinOp(self,node):
 
+        # print('in binop')
+        # print(f'node is {ast.dump(node)}')
+
         leftNode=node.left
         rightNode=node.right
 
         if not (is_name_bookmark(leftNode) and is_name_bookmark(rightNode)):
         
+            # print(f'pype val replaced node is {ast.dump(node)}')
+
             newLeftNode=Call(func=Attribute(value=PYPE_VALS_NODE,
                                             attr='PypeVal',
                                             ctx=Load()),
@@ -463,6 +468,7 @@ class NameBookmarkReplacer(NodeVisitor):
         TODO - do this for all pype calls inside a function, which means the 
         accum-assign strategy needs to be replaced.
         '''
+        # print(f'{self.pypeAliases} is pype aliases')
         if is_pype_return(node.body,self.pypeAliases):
             # Set the accum node
             self.accumNode=node.body[-1].value.args[0]
@@ -600,7 +606,7 @@ class PypeDecoratorFinder(NodeVisitor):
 
             self.hasDecorator|=(isinstance(decorator,Call) and \
                                 isinstance(decorator.func,Name) and \
-                                decorator.func.id=='pype')
+                                decorator.func.id=='pypeify')
 
         self.generic_visit(node)
 

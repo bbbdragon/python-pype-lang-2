@@ -1,3 +1,4 @@
+from functools import wraps
 from pype2.type_checking import *
 from functools import reduce
 from collections import defaultdict
@@ -6,6 +7,10 @@ from copy import deepcopy
 from operator import itemgetter
 import pprint as pp
 import numpy as np
+import time as tm
+from numba import njit,jit
+import pickle as pk
+import json as js
 
 '''
 This file contains 3 things:
@@ -29,14 +34,13 @@ buffer.
 #####################
 # GET CALL OR FALSE #
 #####################
-    
 def get_call_or_false_core(obj,useCallable,keys):
     '''
     This is the biggie, however, as it defines the logic for indexing.  
     '''
     # print('get_call_or_false_core')
-    # print(f'{obj} is obj')
-    # print(f'{keys} is keys')
+    # short_pp(f'{obj} is obj')
+    # short_pp(f'{keys} is keys')
     # print(f'{useCallable} is useCallable')
 
     # If the object is a callable and we are allowed to call it, then
@@ -66,12 +70,16 @@ def get_call_or_false_core(obj,useCallable,keys):
     # Is this a numpy array?  And is it being indexed? 
     elif is_ndarray(obj):
 
+        # print(f'{is_string(keys[0])} is string')
         if not is_string(keys[0]):
+
+            # print(f'in ndarray, accessing {keys}')
 
             return obj[keys]
 
         obj=getattr(obj,keys[0])
 
+        
     # Is this a list or a tuple?
     elif is_list(obj) or is_tuple(obj):
 
@@ -149,7 +157,7 @@ def short_pp_string(v,ln=2000):
 
 def short_pp(v,ln=2000):
 
-    print(short_pp_string(v,ln=2000))
+    print(short_pp_string(v,ln))
 
 
 ########################
@@ -517,6 +525,13 @@ def cartesian(*lists):
     return itertools.product(*lists)
 
 
+def range_cartesian(*els):
+
+    lists=[range(el) for el in els]
+
+    return itertools.product(*lists)
+
+
 def cartesian_ls(el1,el2):
 
     return list(cartesian(el1,el2))
@@ -623,6 +638,11 @@ def is_dict_helper(accum):
     return isinstance(accum,dict)
 
 
+def reverse_dct(dct):
+
+    return {v:k for (k,v) in dct.items()}
+
+
 def reverse_ls_dct(dct):
 
     dd=defaultdict(lambda:list())
@@ -691,11 +711,20 @@ def all_t(collection):
     return all([bool(v) for v in vals])
 
 
-def select(dct,*keys):
+def select_keys(dct,*keys):
 
     return {k:dct[k] for k in keys}
 
+'''
+def squash(dct,key):
 
+    subDict=dct[key]
+    newDict=dct_merge(dct,subDict)
+    
+    del newDict[key]
+
+    return newDict
+'''
 
 def rng(ln):
 
@@ -857,3 +886,33 @@ def unique_dcts(dctLS):
 
     return list(d.values())
 
+
+def first_n_items(dct,n=5):
+
+    return {k:v for (k,v) in list(dct.items())[:n]}
+
+
+def time_func(func):
+
+    originalFuncName=func.__name__
+
+    @wraps(func)
+    def timed(*args):
+
+        t0=tm.time()
+        v=func(*args)
+
+        print(f'time to run {originalFuncName}: {tm.time() - t0}')
+
+        return v
+
+    return timed
+
+
+import random
+
+def shuffle_ls(ls):
+
+    random.shuffle(ls)
+
+    return ls

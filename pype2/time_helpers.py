@@ -279,6 +279,7 @@ def increment_date(date,days=1):
 
     return date+dt.timedelta(days=int(days))
 
+
 def increment_date_string(dateString,days=1):
 
     return date_string(parse(dateString)+dt.timedelta(days=int(days)))

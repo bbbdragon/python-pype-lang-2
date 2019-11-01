@@ -1,4 +1,3 @@
-py_slice=slice
 from pype2.fargs import *
 from pype2.build_helpers import *
 from pype2.vals import LamTup,delam,is_bookmark,NameBookmark
@@ -77,7 +76,7 @@ LOADED_LIST_ELEMENT=Name(id='list_element',ctx=Load())
 STORED_LIST_ELEMENT=Name(id='list_element',ctx=Store())
 
 DO_LAMBDA_ARG=Name(id='do_lambda_arg',ctx=Load())
-
+NONE_NODE=NameConstant(value=None)
 
 #############################
 # PRINT NODES FOR DEBUGGING #
@@ -369,23 +368,22 @@ def has_getitem(fArgs):
 # SLICE #
 #########
 
-def is_slice(fArg):
-
-    return is_tuple(fArg)\
-        and len(fArg) == 3\
-        and fArg[0] == py_slice
-
 
 def slice_node(fArg,accum):
 
-    #print(f'computing slice for {fArg}')
+    # print(f'computing slice for {fArg}')
 
     lower=optimize_rec(fArg[1],accum)
     upper=optimize_rec(fArg[2],accum)
 
-    return Slice(lower=lower,
-                 upper=upper,
-                 step=None) # Include step in the syntax
+    # print(f'{lower} is lower')
+    # print(f'{upper} is upper')
+    # print(f'{upper is None} is upper is None')
+
+    return Call(func=Name(id='slice',
+                          ctx=Load()),
+                args=[lower,upper,NONE_NODE],
+                keywords=[])
 
 
 #########
@@ -430,9 +428,9 @@ def index_val_node(val):
 
 def index_node(fArgs,accum=ACCUM_LOAD,getFunc=get_call_or_false):
 
-    #print('='*30)
-    #print('index_node')
-    #print(f'computing index node {fArgs}')
+    # print('='*30)
+    # print('index_node')
+    # print(f'computing index node {fArgs}')
     indexedObject=fArgs[0]
     indices=[f[0] for f in fArgs[1:]]
 
@@ -441,13 +439,16 @@ def index_node(fArgs,accum=ACCUM_LOAD,getFunc=get_call_or_false):
         indexedObject=fArgs[1]
         indices=fArgs[2:]
     
-    #print(f'{indexedObject} is indexedObject')
-    #print(f'{dump(accum)} is accum')
+    # print(f'{indexedObject} is indexedObject')
+    # print(f'{dump(accum)} is accum')
     optimizedIndexedObject=optimize_rec(indexedObject,accum) # Should just be a mirror
     optimizedIndices=[optimize_rec(i,accum) if is_f_arg_for_node(i) \
                       else i for i in indices]
     optimizedIndicesNodes=[index_val_node(index) for index in optimizedIndices]
 
+    # Actually, since the slice is now a Call, we don't need this, so let's try
+    # commenting it out.
+    '''
     if optimizedIndicesNodes \
        and isinstance(optimizedIndicesNodes[0],Slice):
 
@@ -457,10 +458,11 @@ def index_node(fArgs,accum=ACCUM_LOAD,getFunc=get_call_or_false):
         return Subscript(value=optimizedIndexedObject,
                          slice=optimizedIndicesNodes[0],
                          ctx=Load())
+    '''
 
-    #print('callable_node_with_args')
-    #print(f'{[dump(n) for n in optimizedIndicesNodes]} is optimizedIndicesNodes')
-    #print(f'{dump(optimizedIndexedObject)} is optimizedIndexedObject')
+    # print('callable_node_with_args')
+    # print(f'{[dump(n) for n in optimizedIndicesNodes]} is optimizedIndicesNodes')
+    # print(f'{dump(optimizedIndexedObject)} is optimizedIndexedObject')
 
     return callable_node_with_args(getFunc,
                                    [optimizedIndexedObject]+optimizedIndicesNodes)
@@ -975,7 +977,7 @@ def parse_literal(fArg):
     
     if fArg is None:
 
-        return None
+        return NONE_NODE
 
     if isinstance(fArg,bool):
 
@@ -1127,6 +1129,10 @@ def optimize_rec(fArg,
 
 
 def optimize_f_args(fArgs,startNode,embeddingNodes):
+
+    # print('*'*30)
+    # print('optimize_f_args')
+    # print(f'{ast.dump(startNode)} is startNode')
 
     assignList=[assign_node_to_accum(startNode)]
 

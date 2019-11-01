@@ -12,6 +12,7 @@ from pype.vals import NameBookmark
 # CONSTANTS #
 #############
 
+PY_SLICE=slice
 MIRROR=Getter('_pype_mirror_')
 _=MIRROR
 __=MIRROR
@@ -354,6 +355,17 @@ def is_quote(fArg):
 def is_do(fArg):
 
     return is_list(fArg) and len(fArg) > 1 and fArg[0] == do
+
+
+#########
+# SLICE #
+#########
+
+def is_slice(fArg):
+
+    return is_tuple(fArg)\
+        and len(fArg) == 3\
+        and fArg[0] == PY_SLICE
 
 
 ###########
