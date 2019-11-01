@@ -92,10 +92,11 @@ def embedding_functions(*args):
 # HELPERS FOR VERBOSE MODE #
 ############################
 
-def build_key_step(buildKeyStep):
+def build_key_step(message,buildKeyStep):
 
     if buildKeyStep:
 
+        print(message)
         print('press enter to continue ...')
         input()
 
@@ -119,6 +120,6 @@ def print_tree(tree,message,verbose,buildKeyStep=False):
 
         buildKeyStep=False
 
-    build_key_step(buildKeyStep)
+    build_key_step(message,buildKeyStep)
 
 
