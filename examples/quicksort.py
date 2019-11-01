@@ -1,4 +1,4 @@
-from pype2 import p,pype,pypeify
+from pype2 import p,pypeify_namespace
 from pype2 import _,iff
 from pype2.helpers import middle
 
@@ -94,7 +94,7 @@ def qs4(ls):
 '''
 pypeify compiles all the functions above ...
 '''
-pypeify()
+pypeify_namespace(globals())
 
 if __name__=='__main__':
 
