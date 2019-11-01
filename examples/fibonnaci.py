@@ -1,7 +1,7 @@
 '''
 python3 fibonnaci.py
 '''
-from pype2 import p,pype,pypeify
+from pype2 import p,pypeify_namespace
 from pype2 import _,iff
 
 '''
@@ -78,7 +78,7 @@ def fib4(x):
 '''
 pipeify goes through all the previously defined pype funcitons and compiles them.
 '''
-pypeify()
+pypeify_namespace(globals())
 
 
 if __name__=='__main__':
