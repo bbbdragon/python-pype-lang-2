@@ -1,5 +1,5 @@
 name='pype2'
-__version__='1.2.0'
+__version__='2.0.0'
 py_slice=slice
 from pype2.build_helpers import *
 from pype2.nodes import *
@@ -26,7 +26,9 @@ import types
 import builtins
 # We are importhing these symbols for visibility, so you can say from pype2 import _0
 from pype2.fargs import _,_0,_1,_2,_3,_4,_last
-from pype2.macros import ep,iff,ift,ifp,iffp,db,dbp,select,a,ap,m,d,tup,app,c
+from pype2.macros import ep,iff,ift,ifp,iftp,db,dbp
+from pype2.macros import select,a,ap,m,d,tup,app,c,is_true,squash,change
+from numba import njit
 
 #######################
 # NAIVE PYPE FUNCTION #
@@ -140,7 +142,8 @@ def pypeify(verbose=False,
             timed=False,
             printAccums=False,
             keyStep=False,
-            buildKeyStep=False):
+            buildKeyStep=False,
+            njitOptimized=False):
     '''
     TODO: Recursive Functions can't be compiled with explicit build.
     '''
@@ -150,9 +153,12 @@ def pypeify(verbose=False,
         functionDecorators are functions that are applied to the compiled function.
         nodeEmbedders are functions that are applied to each fArg.
         '''
-        functionDecorators=embedding_functions(timed,time_func)
+        functionDecorators=embedding_functions(njitOptimized,njit,
+                                               timed,time_func)
         embeddingNodes=embedding_functions(*[printAccums,print_and_eval_node,
                                              keyStep,keystep_node])
+
+        # print(f'{functionDecorators} is functionDecorators')
         '''
         The originalFuncName is used in FUNCTION_CACHE to refer to the function.
         It also is put into the global namespace.  Maybe there's a better way ...
@@ -182,6 +188,9 @@ def pypeify(verbose=False,
         '''
         aliases=aliases_for_pype(glbls)
 
+        # print(f'{pype_func} is pype func')
+        # print(f'{aliases} is aliases')
+
         @wraps(pype_func)
         def build_wrapper(*args):
             '''
@@ -208,6 +217,7 @@ def pypeify(verbose=False,
             noAccumReplacer.visit(tree)
 
             print_tree(tree,'parse tree after no accum replacer:',verbose)
+
             '''
             Now, we see if a return is in the final pype expression.  If it is
             not, then we insert it into the AST.
@@ -224,6 +234,7 @@ def pypeify(verbose=False,
             originalTree=deepcopy(tree)
 
             print_tree(originalTree,'original tree is:',verbose,buildKeyStep)
+
             '''
             Now, we want to replace any name, either in the global variables or the
             function body, that appears in the function body with NameBookmark.
@@ -343,7 +354,7 @@ pype_builder=pypeify
 # COMPILATION OF ALL PYPE FUNCTIONS #
 #####################################
 
-def pypeify_all(namespace=None):
+def pypeify_namespace(namespace):
     '''
     This function searches a namespace for any pype functions which do not have the
     'pype' decorator.  If the function does not have the 'pype' decorator, then the 
@@ -351,10 +362,6 @@ def pypeify_all(namespace=None):
     the function does not have the decorator, then 'pypeify' will compile this 
     function with the default kwargs.  This allows the user to set the kwargs when
     necessary for debugging.  
-
-    The namespace parameter is set to 'None' by default, because we want to be able
-    to run apply this function to the module where it is called, looking for all
-    pype functions and compiling them.  
 
     However, in order for this to happen, 'pypeify' has to be declared *after* all
     pype functions without the 'pype' decorator are declared/defined, and 
@@ -392,12 +399,6 @@ def pypeify_all(namespace=None):
        
         pfunc1(1) => 2
     '''
-    if namespace is None:
-
-        stack=inspect.stack()
-        stackFrame=stack[1].frame
-        namespace=stackFrame.f_globals
-
     aliases=aliases_for_pype(namespace)
     allPypeFunctions={k:v for (k,v) in namespace.items() \
                       if is_pype_function(v,aliases)}
@@ -411,6 +412,15 @@ def pypeify_all(namespace=None):
             f=pype_builder()(v)
             
             namespace[k]=f
+
+
+def pypeify_all():
+
+    for fr in inpsect.stack():
+
+        namespace=fr.frame.f_globals
+
+        pypeify_namespace(namespace)        
 
 
 '''
